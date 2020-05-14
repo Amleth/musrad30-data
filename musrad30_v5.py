@@ -6,7 +6,7 @@ from collections import defaultdict
 
 # initialisation du graphe et des URL
 IREMUS = Namespace("http://data-iremus.huma-num.fr/id/")
-MUSRAD30 = Namespace("http://data-iremus.huma-num.fr/ns/musrad30#")
+MUSRAD30 = Namespace("http://data-iremus.huma-num.fr/ns/musrad30/")
 SCHEMA = Namespace("http://schema.org/")
 
 g = Graph()
@@ -21,6 +21,16 @@ g.bind("schema", SCHEMA)
 
 is_a = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
+current_file_path = __file__
+current_file_dir = os.path.dirname(__file__)
+wiki_file_path = os.path.join(current_file_dir, "wikipedia-links-registry.json")
+other_file_path = os.path.join(current_file_dir, "db_radio.json")
+
+#chargement des liens wikipédias dans un dictionnaire
+if wiki_file_path :
+    with open(wiki_file_path, 'r') as f:
+        lienswiki = json.load(f)
+
 # fonctions outils
 def initConceptScheme(uriConcept, nom):
     # declaration comme ConceptScheme
@@ -32,7 +42,7 @@ def initConceptScheme(uriConcept, nom):
         )
     )
     # association au litteral lui servant de titre
-    g.add((URIRef(uriConcept), URIRef(DCTERMS.title), Literal(nom),))
+    g.add((URIRef(uriConcept), URIRef(DCTERMS.title), Literal(nom)))
 
 
 def genUriIremus():
@@ -662,6 +672,10 @@ def initMusiciens():
                 uriMusiciens[x["IDmusiciens"]] = genUriIremus()
                 uri = uriMusiciens[x["IDmusiciens"]]
                 g.add((URIRef(uri), URIRef(is_a), URIRef(SCHEMA["Person"])))
+                g.add((URIRef(uri), URIRef(MUSRAD30["id"]), Literal(x["IDmusiciens"])))
+
+                if x["IDmusiciens"] in lienswiki:
+                    g.add((URIRef(uri), URIRef(RDFS.seeAlso), Literal(lienswiki[x["IDmusiciens"]])))
                 
                 initNationalite(x)
                 initSpecialite(x)
@@ -1202,9 +1216,7 @@ def initDiffusions():
             
 
 # Début du programme
-current_file_path = __file__
-current_file_dir = os.path.dirname(__file__)
-other_file_path = os.path.join(current_file_dir, "db_radio.json")
+
 with open(other_file_path) as json_file:
     data = json.load(json_file)
     initCategoriesSousCategories()
