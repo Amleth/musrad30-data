@@ -6,7 +6,7 @@ from collections import defaultdict
 
 # initialisation du graphe et des URL
 IREMUS = Namespace("http://data-iremus.huma-num.fr/id/")
-MUSRAD30 = Namespace("http://data-iremus.huma-num.fr/ns/musrad30/")
+MUSRAD30 = Namespace("http://data-iremus.huma-num.fr/ns/musrad30#")
 SCHEMA = Namespace("http://schema.org/")
 
 g = Graph()
