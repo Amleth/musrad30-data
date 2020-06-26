@@ -348,6 +348,8 @@ def initHorairesDifProgrammes(horaire):
         if int(numero_jour) < 10:
             chaineJour = "0" + chaineJour
         chaineDate = "19" + annee + "-" + numero_mois + "-" + chaineJour
+        if len(heure) == 1 :
+            heure = '0' + heure
         chaineHeureAbs = heure + ":" + minutes + ":00"
         chaineHeure = heure + ":" + minutes + ":00" + "+01"  # prise en compte UTC+1
         return nom_jour, chaineHeure, chaineDate, chaineHeureAbs
