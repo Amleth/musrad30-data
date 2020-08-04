@@ -1,5 +1,10 @@
 from pprint import pprint
-import json, uuid, re, time, datetime, os
+import json
+import uuid
+import re
+import time
+import datetime
+import os
 from rdflib import Graph, Literal, BNode, Namespace, RDF, URIRef
 from rdflib.namespace import DCTERMS, RDF, RDFS, SKOS, XSD, OWL, FOAF, RDFS
 from collections import defaultdict
@@ -26,12 +31,14 @@ current_file_dir = os.path.dirname(__file__)
 wiki_file_path = os.path.join(current_file_dir, "wikipedia-links-registry.json")
 other_file_path = os.path.join(current_file_dir, "db_radio.json")
 
-#chargement des liens wikipédias dans un dictionnaire
-if wiki_file_path :
+# chargement des liens wikipédias dans un dictionnaire
+if wiki_file_path:
     with open(wiki_file_path, 'r') as f:
         lienswiki = json.load(f)
 
 # fonctions outils
+
+
 def initConceptScheme(uriConcept, nom):
     # declaration comme ConceptScheme
     g.add(
@@ -64,6 +71,8 @@ uriCatInt = dict()
 uriSousCat = dict()
 
 # Fonction relative a l'initialisation des catégories et sous-catégories
+
+
 def initCategoriesSousCategories():
     for key, value in data["db_radio"].items():
         if key == "categorie":
@@ -176,7 +185,7 @@ def initStationsRadio():
         (
             URIRef(dicoRadios['RC']),
             URIRef(SCHEMA["sameAs"]),
-            URIRef(dicoRadios['LL']),     
+            URIRef(dicoRadios['LL']),
         )
     )
     for cleRadio in dicoRadios.keys():
@@ -203,8 +212,8 @@ def initStationsRadio():
                     Literal("Radio Cité"),
                 )
             )
-        
-        else :
+
+        else:
             g.add(
                 (
                     URIRef(dicoRadios[cleRadio]),
@@ -212,7 +221,7 @@ def initStationsRadio():
                     Literal("Radio LL"),
                 )
             )
-        
+
     return dicoRadios
 
 
@@ -242,7 +251,7 @@ def initTypeProgEtFormatDiff():
                 URIRef("http://www.w3.org/2004/02/skos/core#Concept"),
             )
         )
-        
+
         g.add(
             (
                 URIRef(uriTypesProgrammes[typeProgramme]),
@@ -273,7 +282,7 @@ def initTypeProgEtFormatDiff():
                 URIRef(SKOS.Concept),
             )
         )
-        
+
         g.add(
             (
                 URIRef(uriFormatDiff[formatDiff]),
@@ -327,6 +336,7 @@ def extractJourDateHeure(horaire):
         nom_jour, numero_jour, nom_mois, annee, heure, minutes = res
         return (nom_jour, numero_jour, nom_mois, annee, heure, minutes)
 
+
 def HeuretoDuration(heure):
     heure = str(heure)
     p = re.compile(
@@ -335,8 +345,9 @@ def HeuretoDuration(heure):
     if p.match(heure) is not None:
         res = p.match(heure).groups()
         heure, minutes = res
-        duration = "PT" + heure + "H" + minutes +"M"
+        duration = "PT" + heure + "H" + minutes + "M"
         return duration
+
 
 def initHorairesDifProgrammes(horaire):
     if extractJourDateHeure(horaire):
@@ -348,7 +359,7 @@ def initHorairesDifProgrammes(horaire):
         if int(numero_jour) < 10:
             chaineJour = "0" + chaineJour
         chaineDate = "19" + annee + "-" + numero_mois + "-" + chaineJour
-        if len(heure) == 1 :
+        if len(heure) == 1:
             heure = '0' + heure
         chaineHeureAbs = heure + ":" + minutes + ":00"
         chaineHeure = heure + ":" + minutes + ":00" + "+01"  # prise en compte UTC+1
@@ -395,7 +406,7 @@ def initProgrammes(dictionnaireUri, noeudTitreProgrammes):
                             URIRef(uriTitreProgrammes[x["titre_prog"]]),
                         )
                     )
-                    
+
                 else:
                     uriTitreProgrammes[x["titre_prog"]] = genUriIremus()
                     g.add(
@@ -449,7 +460,7 @@ def initProgrammes(dictionnaireUri, noeudTitreProgrammes):
                         URIRef(uriTypesProgrammes[x["type_prog"]]),
                     )
                 )
-                
+
                 g.add(
                     (
                         URIRef(uri),
@@ -501,12 +512,12 @@ def initProgrammes(dictionnaireUri, noeudTitreProgrammes):
                     b_time = datetime.datetime.strptime(hAbsFin, "%H:%M:%S")
 
                     # Convert to timedelta
-                    a_delta = datetime.timedelta(hours = a_time.hour,minutes=a_time.minute)
-                    b_delta = datetime.timedelta(hours = b_time.hour,minutes=b_time.minute)
+                    a_delta = datetime.timedelta(hours=a_time.hour, minutes=a_time.minute)
+                    b_delta = datetime.timedelta(hours=b_time.hour, minutes=b_time.minute)
                     duration = (b_delta - a_delta)
                     duration = HeuretoDuration(duration)
                     if duration:
-                    #ajouter la duree si celle-ci ok
+                        # ajouter la duree si celle-ci ok
                         g.add(
                             (
                                 URIRef(uri),
@@ -514,7 +525,7 @@ def initProgrammes(dictionnaireUri, noeudTitreProgrammes):
                                 Literal(duration, datatype=XSD.duration),
                             )
                         )
-                    
+
                 g.add(
                     (
                         URIRef(uri),
@@ -543,6 +554,8 @@ uriStyle = dict()
 uriSpecialite = dict()
 
 # Fonctions relatives aux Musiciens
+
+
 def checkAnnee(date):
     if date is not None:
         p = re.compile("([0-9]{4})")
@@ -614,7 +627,6 @@ def initNationalite(x):
             )
 
 
-
 def initSpecialite(x):
     if x.get("specialite", "") != "":
         specialite = x["specialite"]
@@ -642,7 +654,6 @@ def initSpecialite(x):
             )
 
 
-
 def initStyle(x):
     if x.get("style", "") != "":
         style = x["style"]
@@ -663,7 +674,6 @@ def initStyle(x):
                     URIRef(uriSty),
                 )
             )
-            
 
 
 def initMusiciens():
@@ -678,7 +688,7 @@ def initMusiciens():
 
                 if x["IDmusiciens"] in lienswiki:
                     g.add((URIRef(uri), URIRef(RDFS.seeAlso), Literal(lienswiki[x["IDmusiciens"]])))
-                
+
                 initNationalite(x)
                 initSpecialite(x)
                 initStyle(x)
@@ -698,9 +708,9 @@ def initMusiciens():
                     (URIRef(uri), URIRef(FOAF.surname), Literal(x["nom_musiciens"]),)
                 )
                 g.add((URIRef(uri), URIRef(FOAF.name), Literal(Label),))
-                
+
                 chaineDatesRdfs = ""
-                
+
                 if checkAnnee(x.get("naissance_musiciens", "N/A")):
                     annee = checkAnnee(x["naissance_musiciens"])
                     g.add((URIRef(uri), URIRef(SCHEMA["birthDate"]), Literal(annee),))
@@ -713,14 +723,14 @@ def initMusiciens():
                     chaineDatesRdfs += annee + ")"
                 else:
                     chaineDatesRdfs += "????)"
-                
+
                 if prenom:
                     g.add(
                         (
                             URIRef(uri), URIRef(RDFS.label), Literal(str(x["nom_musiciens"]) + ", " + prenom + " " + chaineDatesRdfs)
                         )
                     )
-                else :
+                else:
                     g.add(
                         (
                             URIRef(uri), URIRef(RDFS.label), Literal(str(x["nom_musiciens"]) + ", " + " " + chaineDatesRdfs)
@@ -728,6 +738,10 @@ def initMusiciens():
                     )
                 # infosMusicien
                 if x["infos_musiciens"] != "":
+                    x["infos_musiciens"] = x["infos_musiciens"].split(";")
+                    x["infos_musiciens"] = [_.strip() for _ in x["infos_musiciens"]]
+                    x["infos_musiciens"] = [_ for _ in x["infos_musiciens"] if len(_) > 0]
+                    x["infos_musiciens"] = " ; ".join(x["infos_musiciens"])
                     g.add(
                         (
                             URIRef(uri),
@@ -772,7 +786,6 @@ def initMusiciens():
                     )
 
 
-
 def initMusiciensCat():
     print("Initialisation des relations entre Musiciens et sous-catégories")
     for key, value in data["db_radio"].items():
@@ -790,9 +803,7 @@ def initMusiciensCat():
                     )
 
 
-
 # Gestion des diffusions
-
 # Variables relatives aux diffusions
 dicoPM = defaultdict(
     list
@@ -806,6 +817,8 @@ uriPlages = {}
 uriPerfs = {}
 
 # Fonctions relatives aux diffusions
+
+
 def initDicoProgOeuvresComposees():
     # initialise le dictionnaire associant a chaque prog id la liste des triplets d'une diffusion
     for key, value in data["db_radio"].items():
@@ -906,9 +919,9 @@ def initDiffusions():
                     uriOeuvre = uriOeuvreCT[(d[0], d[1])] = genUriIremus()
                     g.add(
                         (
-                        URIRef(uriOeuvre),
-                        URIRef(is_a),
-                        URIRef(SCHEMA["MusicComposition"]),
+                            URIRef(uriOeuvre),
+                            URIRef(is_a),
+                            URIRef(SCHEMA["MusicComposition"]),
                         )
                     )
                     g.add(
@@ -935,15 +948,15 @@ def initDiffusions():
                                 URIRef(uriMusiciens[d[1]]),
                             )
                         )
-                        
+
                     else:
                         uriOeuvreCT[(d[0], d[1])] = genUriIremus()
                         uriOeuvre = uriOeuvreCT[(d[0], d[1])]
                         g.add(
                             (
-                            URIRef(uriOeuvre),
-                            URIRef(is_a),
-                            URIRef(SCHEMA["MusicComposition"]),
+                                URIRef(uriOeuvre),
+                                URIRef(is_a),
+                                URIRef(SCHEMA["MusicComposition"]),
                             )
                         )
                         g.add(
@@ -953,7 +966,7 @@ def initDiffusions():
                                 URIRef(uriMusiciens[d[1]]),
                             )
                         )
-                        
+
                         g.add(
                             (URIRef(uriOeuvre), URIRef(SCHEMA["name"]), Literal(d[0]),)
                         )
@@ -975,7 +988,7 @@ def initDiffusions():
                     URIRef(uriOeuvre),
                 )
             )
-            
+
             g.add((URIRef(uriPlage), URIRef(is_a), URIRef(SCHEMA["BroadcastEvent"]),))
             g.add(
                 (
@@ -1016,7 +1029,6 @@ def initDiffusions():
                         URIRef(SCHEMA["MusicComposition"]),
                     )
                 )
-                
 
             uriOeuvre = uriOeuvresCnT[(prog_id, d[1])]
             uriPlage = uriPlages[(prog_id, uriOeuvre)] = genUriIremus()
@@ -1035,7 +1047,7 @@ def initDiffusions():
                     URIRef(uriOeuvre),
                 )
             )
-            
+
             g.add((URIRef(uriPlage), URIRef(is_a), URIRef(SCHEMA["BroadcastEvent"]),))
             g.add(
                 (
@@ -1080,13 +1092,13 @@ def initDiffusions():
                 if d[0] in dicoTitres:
                     g.add(
                         (
-                            
+
                             URIRef(dicoTitrePerf[dicoTitres[d[0]]]),
                             URIRef(SCHEMA["performer"]),
                             URIRef(uriMusiciens[d[1]]),
                         )
                     )
-                    
+
                 else:
                     dicoTitres[d[0]] = genUriIremus()
                     dicoTitrePerf[dicoTitres[d[0]]] = genUriIremus()
@@ -1136,7 +1148,7 @@ def initDiffusions():
                     )
                     g.add(
                         (
-                            
+
                             URIRef(dicoTitrePerf[dicoTitres[d[0]]]),
                             URIRef(SCHEMA["performer"]),
                             URIRef(uriMusiciens[d[1]]),
@@ -1161,7 +1173,7 @@ def initDiffusions():
                             URIRef(uriPerf),
                             URIRef(SCHEMA["performer"]),
                             URIRef(uriMusiciens[y[1]]),
-                            
+
                         )
                     )
 
@@ -1170,12 +1182,12 @@ def initDiffusions():
             uriPlage = genUriIremus()
             uriPerf = genUriIremus()
             g.add((URIRef(uriOeuvre), URIRef(is_a), URIRef(SCHEMA["MusicComposition"]),))
- 
+
             g.add(
                 (
-                URIRef(uriPerf),
-                URIRef(is_a),
-                URIRef(SCHEMA["MusicEvent"]),
+                    URIRef(uriPerf),
+                    URIRef(is_a),
+                    URIRef(SCHEMA["MusicEvent"]),
                 )
             )
             g.add((URIRef(uriPlage), URIRef(is_a), URIRef(SCHEMA["BroadcastEvent"]),))
@@ -1215,7 +1227,7 @@ def initDiffusions():
                     URIRef(uriMusiciens[d[1]]),
                 )
             )
-            
+
 
 # Début du programme
 
@@ -1232,11 +1244,8 @@ with open(other_file_path) as json_file:
     initDiffusions()
 
 # ecriture de la serialisation dans un fichier .ttl
-print("Ecriture du fichier")
+print("Écriture du fichier")
 with open("musrad30.ttl", "w") as f:
     output = f"@base <{IREMUS}> .\n" + \
         g.serialize(format="turtle").decode("utf-8")
     f.write(output)
-
-print("fin du script")
-

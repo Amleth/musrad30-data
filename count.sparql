@@ -1,0 +1,6 @@
+SELECT (COUNT(*) as ?triples) 
+WHERE {
+	GRAPH <http://localhost:3030/iremus/data/musrad30> {
+		?s ?p ?o
+	}
+}
